@@ -2,6 +2,7 @@ import React, {useEffect} from "react";
 import rigoImage from "../../img/rigo-baby.jpg";
 import { Link } from "react-router-dom";
 import "../../styles/home.css";
+import Contact from "../component/Contact";
 
 
 export const Home = () => {
@@ -57,7 +58,7 @@ export const Home = () => {
 		<button className="btn btn-success">Crear Nuevo Contacto</button>
 		</Link>
 		<h1>Lista de Contactos</h1>
-
+		<Contact />
 	</div>
 );
 };
