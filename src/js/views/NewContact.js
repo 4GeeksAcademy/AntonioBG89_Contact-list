@@ -1,36 +1,82 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Navbar } from '../component/navbar';
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { Context } from "../store/appContext";
 
-const NewContact = () => {
-  const navigate = useNavigate();
+export const NewContact = () => {
+    const { store, actions } = useContext(Context);
+    const [contact, setContact] = useState({
+        full_name: "",
+        email: "",
+        phone: "",
+        address: ""
+    });
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-  
+    useEffect(() => {
+        if (id) {
+            const contactToEdit = store.contacts.find(contact => contact.id === parseInt(id));
+            setContact(contactToEdit || {});
+        }
+    }, [id, store.contacts]);
 
-  function createContact() {
-    // fetch(getUserURL, {
-		// 	method: "POST",
-		// 	body: JSON.stringify(""),
-		// 	headers: {
-		// 		'Content-Type': 'application/json'
-		// 	}
-		// })
-		// .then(response => response.json())
-		// .then(data => console.log("User created:", data))
-		// .catch(error => console.error("Error creating user:", error));
+    const handleChange = e => {
+        setContact({ ...contact, [e.target.name]: e.target.value });
+    };
 
-    navigate('/');
-  }
+    const handleSubmit = e => {
+        e.preventDefault();
+        if (id) {
+            actions.editContact(id, contact);
+        } else {
+            actions.addContact(contact);
+        }
+        navigate("/");
+    };
 
-  return (
-    <div className='container mt-5'>
-        <h4>Aquí vamos a crear los contactos nuevos</h4>
-        <h3>Aquí el formulario del usuario</h3>
-        <button className='btn btn-success' onClick={()=>{
-          createContact();
-        }}>Crear contacto</button>
-    </div>
-  )
+    return (
+        <div className="container">
+            <div className="row">
+                <div className="col">
+                    <h1>{id ? "Edit Contact" : "Add a new contact"}</h1>
+                    <form onSubmit={handleSubmit}>
+                        <input
+                            type="text"
+                            name="full_name"
+                            className="form-control"
+                            placeholder="Full Name"
+                            value={contact.full_name || ''}
+                            onChange={handleChange}
+                        />
+                        <input
+                            type="email"
+                            name="email"
+                            className="form-control"
+                            placeholder="Enter email"
+                            value={contact.email || ''}
+                            onChange={handleChange}
+                        />
+                        <input
+                            type="text"
+                            name="phone"
+                            className="form-control"
+                            placeholder="Enter phone"
+                            value={contact.phone || ''}
+                            onChange={handleChange}
+                        />
+                        <input
+                            type="text"
+                            name="address"
+                            className="form-control"
+                            placeholder="Enter address"
+                            value={contact.address || ''}
+                            onChange={handleChange}
+                        />
+                        <button className="btn btn-primary">Save</button>
+                        <Link to="/" className="btn btn-secondary">Cancel</Link>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
 };
-
-export default NewContact;

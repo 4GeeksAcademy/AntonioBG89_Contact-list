@@ -1,64 +1,35 @@
-import React, {useEffect} from "react";
-import rigoImage from "../../img/rigo-baby.jpg";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "../../styles/home.css";
-import Contact from "../component/Contact";
-
+import { Context } from "../store/appContext";
+import ContactCard from "../component/ContactCard";
 
 export const Home = () => {
-	const getUserAgendaURL = "https://playground.4geeks.com/contact/agendas/AntonioBG89";
-	const getContactsURL = "https://playground.4geeks.com/contact/agendas/AntonioBG89/contacts";
+    const { store, actions } = useContext(Context);
 
-	const [contact, setContact] = useState([]);
-	const [newContact, setNewContact] = useState("");
+    useEffect(() => {
+        actions.loadContacts();
+    }, []);
 
-	const createUserAgenda = () => {
-		const newUserAgenda = {"slug": "AntonioBG89", "contacts": []};
-		fetch(getUserAgendaURL, {
-			method: "POST",
-			body: JSON.stringify(newUserAgenda),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-		.then(response => response.json())
-		.then(data => console.log("User agenda created:", data))
-		.catch(error => console.error("Error creating user agenda:", error));
-	};
+	 // Asegúrate de que contacts es un array antes de hacer map
+	 // Asegúrate de que contacts.contacts (o la propiedad correcta) es un array
+	 if (!store.contacts || !Array.isArray(store.contacts.contacts)) {
+        return <p>Loading contacts...</p>;
+    }
 
-	useEffect(()=>{createUserAgenda()}, []);
-
-	const addContact = () => {
-		const newContact = {
-            "name": "",
-            "phone": "",
-            "email": "",
-            "address": "",
-        };
-		fetch(getContactsURL, {
-			method: "POST",
-			body: JSON.stringify(newContact),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-		.then(response => response.json())
-		.then(data => {
-			console.log("Contact added:", data);
-			setContact([...contact, data]);
-		})
-		.catch(error => console.error("Error adding ToDo:", error));
-		
-	};
-
-
-	return (
-	<div className="text-center mt-5">
-		<Link to="/new-contact">
-		<button className="btn btn-success">Crear Nuevo Contacto</button>
-		</Link>
-		<h1>Lista de Contactos</h1>
-		<Contact />
-	</div>
-);
+    return (
+        <div className="container">
+            <div className="row">
+                <div className="col">
+                    <Link to="/new-contact">
+                        <button className="btn btn-success">Add new contact</button>
+                    </Link>
+                    <div className="list-group">
+					{store.contacts.contacts.map(contact => (
+                        <ContactCard key={contact.id} contact={contact} />
+                    ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
